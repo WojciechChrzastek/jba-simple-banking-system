@@ -14,7 +14,8 @@ gradle/
 gradlew
 gradlew.bat
 settings.gradle
-Simple Chatty Bot
+Simple Banking System
+Problems
 
 # User-specific stuff
 .idea/**/workspace.xml
