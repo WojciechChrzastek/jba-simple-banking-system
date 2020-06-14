@@ -69,24 +69,62 @@ public class Main {
         }
     }
 
-    private static void createAnAccount() {
+    private static long createCardNumber() {
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+        int[] cardNumberWithoutChecksum = {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+        for (int i = 6; i < 15; i++) {
+            cardNumberWithoutChecksum[i] = random.nextInt(10);
+        }
+
+        int checksum = 0;
+        int sum = 0;
+
+        String cardNumberWithoutChecksumString = "";
+
+        for (int i : cardNumberWithoutChecksum) {
+            cardNumberWithoutChecksumString = sb.append(i).toString();
+        }
+
+        for (int i = 1; i <= cardNumberWithoutChecksum.length; i++) {
+            if (i % 2 != 0) {
+                cardNumberWithoutChecksum[i - 1] *= 2;
+            }
+        }
+
+        for (int i = 1; i <= cardNumberWithoutChecksum.length; i++) {
+            if (cardNumberWithoutChecksum[i - 1] > 9) {
+                cardNumberWithoutChecksum[i - 1] -= 9;
+            }
+        }
+
+        for (int i : cardNumberWithoutChecksum) {
+            sum += i;
+        }
+
+        while (!((sum + checksum) % 10 == 0)) {
+            checksum++;
+        }
+
+        return Long.parseLong(cardNumberWithoutChecksumString.concat(String.valueOf(checksum)));
+    }
+
+    public static String createPin() {
         Random random = new Random();
         String pin = "";
-        String cardNumberString = "";
-        long cardNumber = 400000L;
-        int balance = 0;
-        StringBuilder pinBuilder = new StringBuilder();
-        StringBuilder cardNumberBuilder = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < 4; i++) {
-            pin = pinBuilder.append(random.nextInt(10)).toString();
+            pin = sb.append(random.nextInt(10)).toString();
         }
+        return pin;
+    }
 
-        for (int i = 0; i < 10; i++) {
-            cardNumberString = cardNumberBuilder.append(random.nextInt(10)).toString();
-        }
-
-        cardNumber = Long.parseLong(String.valueOf(cardNumber).concat(cardNumberString));
+    private static void createAnAccount() {
+        long cardNumber = createCardNumber();
+        String pin = createPin();
+        int balance = 0;
 
         Account account = new Account(cardNumber, pin, balance);
         accountsSet.add(account);
