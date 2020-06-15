@@ -11,12 +11,28 @@ public class Main {
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        runApplication();
+        runApplication(args);
         scanner.close();
     }
 
-    private static void runApplication() {
+    private static void runApplication(String[] args) {
         determineMainMenuAction(takeInput("main"));
+        importDbFileName(args);
+    }
+
+    private static String importDbFileName(String[] args) {
+        String fileName = "";
+
+        try {
+            if (!args[0].equals("-import") && args.length < 2) {
+                System.out.println("No database name passed by command line argument.");
+            } else {
+                fileName = args[2];
+            }
+        } catch (Exception e){
+            System.out.println("No database name passed by command line argument.");
+        }
+        return fileName;
     }
 
     private static String takeInput(String menu) {
