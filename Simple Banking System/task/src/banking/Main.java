@@ -11,34 +11,31 @@ public class Main {
     private static final Set<Account> accountsSet = new HashSet<>();
     private static final Scanner scanner = new Scanner(System.in);
     private static final DbHandler dbHandler = new DbHandler();
-    private static final Connection conn = dbHandler.connect();
+    private static String dbName;
+
 
     public static void main(String[] args) {
         runApplication(args);
     }
 
     private static void runApplication(String[] args) {
-//        importDbFileName(args);
-        setDb();
+        setDb(args);
         determineMainMenuAction(takeInput("main"));
     }
 
-    private static void setDb() {
-        dbHandler.createNewDatabase("new.db");
-        dbHandler.createNewTable();
-        dbHandler.insert(conn, "xxx", "1111");
-        dbHandler.insert(conn, "qqq", "2222");
-        dbHandler.insert(conn, "aaa", "3333");
-        dbHandler.insert(conn, "bbb", "4444");
+    private static void setDb(String[] args) {
+        dbName = importDbFileName(args);
+        dbHandler.createNewDatabase(dbName);
+        dbHandler.createNewTable(dbName);
     }
 
     private static String importDbFileName(String[] args) {
         String fileName = "";
         try {
-            if (!args[0].equals("-import") && args.length < 2) {
-                System.out.println("No database name passed by command line argument.");
+            if (args[0].equals("-fileName") && args.length >= 2) {
+                fileName = args[1];
             } else {
-                fileName = args[2];
+                System.out.println("No database name passed by command line argument.");
             }
         } catch (Exception e) {
             System.out.println("No database name passed by command line argument.");
@@ -149,6 +146,8 @@ public class Main {
     }
 
     private static void createAnAccount() {
+        Connection conn = dbHandler.connect(dbName);
+
         long cardNumber = createCardNumber();
         String pin = createPin();
         int balance = 0;
@@ -161,7 +160,10 @@ public class Main {
                 cardNumber + "\n" +
                 "Your card PIN:\n" +
                 pin + "\n");
+
+        dbHandler.insert(conn, String.valueOf(account.getCardNumber()), account.getPin());
         determineMainMenuAction(takeInput("main"));
+        dbHandler.closeConnection(conn);
     }
 
     private static void logIntoAccount() {
@@ -217,7 +219,6 @@ public class Main {
 
     private static void exit() {
         scanner.close();
-        dbHandler.closeConnection(conn);
         System.out.println("\nBye!");
         System.exit(0);
     }
