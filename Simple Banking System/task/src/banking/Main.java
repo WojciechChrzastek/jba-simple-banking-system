@@ -1,5 +1,6 @@
 package banking;
 
+import java.sql.Connection;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
@@ -9,27 +10,37 @@ import java.util.Set;
 public class Main {
     private static final Set<Account> accountsSet = new HashSet<>();
     private static final Scanner scanner = new Scanner(System.in);
+    private static final DbHandler dbHandler = new DbHandler();
+    private static final Connection conn = dbHandler.connect();
 
     public static void main(String[] args) {
         runApplication(args);
-        scanner.close();
     }
 
     private static void runApplication(String[] args) {
+//        importDbFileName(args);
+        setDb();
         determineMainMenuAction(takeInput("main"));
-        importDbFileName(args);
+    }
+
+    private static void setDb() {
+        dbHandler.createNewDatabase("new.db");
+        dbHandler.createNewTable();
+        dbHandler.insert(conn, "xxx", "1111");
+        dbHandler.insert(conn, "qqq", "2222");
+        dbHandler.insert(conn, "aaa", "3333");
+        dbHandler.insert(conn, "bbb", "4444");
     }
 
     private static String importDbFileName(String[] args) {
         String fileName = "";
-
         try {
             if (!args[0].equals("-import") && args.length < 2) {
                 System.out.println("No database name passed by command line argument.");
             } else {
                 fileName = args[2];
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println("No database name passed by command line argument.");
         }
         return fileName;
@@ -205,6 +216,8 @@ public class Main {
     }
 
     private static void exit() {
+        scanner.close();
+        dbHandler.closeConnection(conn);
         System.out.println("\nBye!");
         System.exit(0);
     }
