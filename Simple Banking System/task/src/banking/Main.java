@@ -224,23 +224,22 @@ public class Main {
         for (int i : ints) {
             sum += i;
         }
-
         return sum % 10 == 0;
     }
 
     private static void doTransfer(Connection conn, String loggedCardNumber) {
-        String transferRecipentCardNumber;
-        int transferAmmount;
+        String transferRecipientCardNumber;
+        int transferAmount;
         System.out.println("\nTransfer");
         System.out.println("Enter card number: ");
-        transferRecipentCardNumber = scanner.next();
-        if (!transferRecipentCardNumber.equals(loggedCardNumber)) {
-            if (isLuhnValid(transferRecipentCardNumber)) {
-                if (dbHandler.hasCardNumber(conn, transferRecipentCardNumber)) {
+        transferRecipientCardNumber = scanner.next();
+        if (!transferRecipientCardNumber.equals(loggedCardNumber)) {
+            if (isLuhnValid(transferRecipientCardNumber)) {
+                if (dbHandler.hasCardNumber(conn, transferRecipientCardNumber)) {
                     System.out.println("Enter how much money you want to transfer: ");
-                    transferAmmount = scanner.nextInt();
-                    dbHandler.updateBalance(conn, transferRecipentCardNumber, transferAmmount);
-                    dbHandler.updateBalance(conn, loggedCardNumber, -transferAmmount);
+                    transferAmount = scanner.nextInt();
+                    dbHandler.updateBalance(conn, transferRecipientCardNumber, transferAmount);
+                    dbHandler.updateBalance(conn, loggedCardNumber, -transferAmount);
                     System.out.println("Success!\n");
                 } else {
                     System.out.println("Such a card does not exist.\n");
