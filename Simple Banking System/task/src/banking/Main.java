@@ -172,9 +172,14 @@ public class Main {
         String cardNumber = scanner.next();
         System.out.println("Enter your PIN: ");
         String pin = scanner.next();
-        String loggedCardNumber = dbHandler.findCard(conn, cardNumber, pin);
-        System.out.println("\nYou have successfully logged in!\n");
-        determineLoggedUserAction(conn, loggedCardNumber, takeInput("user"));
+
+        if(dbHandler.hasCard(conn, cardNumber, pin)) {
+            System.out.println("\nYou have successfully logged in!\n");
+            determineLoggedUserAction(conn, cardNumber, takeInput("user"));
+        } else {
+            System.out.println("\nWrong card number or PIN!\n");
+            determineMainMenuAction(conn, takeInput("main"));
+        }
     }
 
     private static void determineLoggedUserAction(Connection conn, String loggedCardNumber, String action) {

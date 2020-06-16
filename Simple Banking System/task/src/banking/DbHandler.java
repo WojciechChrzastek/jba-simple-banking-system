@@ -82,7 +82,7 @@ public class DbHandler {
     return balance;
   }
 
-  public String findCard(Connection conn, String cardNumber, String pin) {
+  public boolean hasCard(Connection conn, String cardNumber, String pin) {
     String sql = "SELECT * FROM card WHERE number = ? AND pin = ?;";
     int rowCount = 0;
 
@@ -97,14 +97,7 @@ public class DbHandler {
     } catch (SQLException e) {
       System.out.println(e.getMessage());
     }
-
-    if (rowCount == 1) {
-      return cardNumber;
-    } else {
-      System.out.println("\nWrong card number or PIN!\n");
-
-    }
-    return null;
+    return rowCount == 1;
   }
 
   public void deleteCard(Connection conn, String cardNumber) {
