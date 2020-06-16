@@ -1,40 +1,27 @@
 package banking;
 
 public class Account {
-  long cardNumber;
+  String cardNumber;
   String pin;
   int balance;
 
-  public Account(Long cardNumber, String pin, int balance) {
+  public Account(String cardNumber, String pin, int balance) {
     this.cardNumber = cardNumber;
     this.pin = pin;
     this.balance = balance;
   }
 
-  public long getCardNumber() {
+  public String getCardNumber() {
     return cardNumber;
-  }
-
-  public void setCardNumber(long cardNumber) {
-    this.cardNumber = cardNumber;
   }
 
   public String getPin() {
     return pin;
   }
 
-  public void setPin(String pin) {
-    this.pin = pin;
-  }
-
   public int getBalance() {
     return balance;
   }
-
-  public void setBalance(int balance) {
-    this.balance = balance;
-  }
-
 
   @Override
   public boolean equals(Object o) {
@@ -43,14 +30,14 @@ public class Account {
 
     Account account = (Account) o;
 
-    if (cardNumber != account.cardNumber) return false;
     if (balance != account.balance) return false;
+    if (!cardNumber.equals(account.cardNumber)) return false;
     return pin.equals(account.pin);
   }
 
   @Override
   public int hashCode() {
-    int result = (int) (cardNumber ^ (cardNumber >>> 32));
+    int result = cardNumber.hashCode();
     result = 31 * result + pin.hashCode();
     result = 31 * result + balance;
     return result;
@@ -59,7 +46,7 @@ public class Account {
   @Override
   public String toString() {
     return "Account{" +
-            "cardNumber=" + cardNumber +
+            "cardNumber='" + cardNumber + '\'' +
             ", pin='" + pin + '\'' +
             ", balance=" + balance +
             '}';
