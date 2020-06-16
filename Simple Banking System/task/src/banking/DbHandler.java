@@ -82,7 +82,24 @@ public class DbHandler {
     return balance;
   }
 
-  public boolean hasCard(Connection conn, String cardNumber, String pin) {
+  public boolean hasCardNumber(Connection conn, String cardNumber) {
+    String sql = "SELECT * FROM card WHERE number = ?;";
+    int rowCount = 0;
+
+    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+      pstmt.setString(1, cardNumber);
+      ResultSet rs = pstmt.executeQuery();
+
+      while (rs.next()) {
+        rowCount++;
+      }
+    } catch (SQLException e) {
+      System.out.println(e.getMessage());
+    }
+    return rowCount == 1;
+  }
+
+  public boolean hasCardPinMatch(Connection conn, String cardNumber, String pin) {
     String sql = "SELECT * FROM card WHERE number = ? AND pin = ?;";
     int rowCount = 0;
 

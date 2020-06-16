@@ -169,7 +169,7 @@ public class Main {
         System.out.println("Enter your PIN: ");
         String pin = scanner.next();
 
-        if(dbHandler.hasCard(conn, cardNumber, pin)) {
+        if (dbHandler.hasCardPinMatch(conn, cardNumber, pin)) {
             System.out.println("\nYou have successfully logged in!\n");
             determineLoggedUserAction(conn, cardNumber, takeInput("user"));
         } else {
@@ -207,6 +207,27 @@ public class Main {
         }
     }
 
+    private static boolean isLuhnValid(String number) {
+        int[] ints = new int[number.length()];
+        for (int i = 0; i < number.length(); i++) {
+            ints[i] = Integer.parseInt(number.substring(i, i + 1));
+        }
+        for (int i = ints.length - 2; i >= 0; i = i - 2) {
+            int j = ints[i];
+            j = j * 2;
+            if (j > 9) {
+                j = j % 10 + 1;
+            }
+            ints[i] = j;
+        }
+        int sum = 0;
+        for (int i : ints) {
+            sum += i;
+        }
+
+        return sum % 10 == 0;
+    }
+
     private static void doTransfer(Connection conn, String loggedCardNumber) {
         String transferRecipentCardNumber;
         int transferAmmount;
@@ -214,11 +235,19 @@ public class Main {
         System.out.println("Enter card number: ");
         transferRecipentCardNumber = scanner.next();
         if (!transferRecipentCardNumber.equals(loggedCardNumber)) {
-            System.out.println("Enter how much money you want to transfer: ");
-            transferAmmount = scanner.nextInt();
-            dbHandler.updateBalance(conn, transferRecipentCardNumber, transferAmmount);
-            dbHandler.updateBalance(conn, loggedCardNumber, -transferAmmount);
-            System.out.println("Success!\n");
+            if (isLuhnValid(transferRecipentCardNumber)) {
+                if (dbHandler.hasCardNumber(conn, transferRecipentCardNumber)) {
+                    System.out.println("Enter how much money you want to transfer: ");
+                    transferAmmount = scanner.nextInt();
+                    dbHandler.updateBalance(conn, transferRecipentCardNumber, transferAmmount);
+                    dbHandler.updateBalance(conn, loggedCardNumber, -transferAmmount);
+                    System.out.println("Success!\n");
+                } else {
+                    System.out.println("Such a card does not exist.\n");
+                }
+            } else {
+                System.out.println("Probably you made mistake in card number. Please try again!\n");
+            }
         } else {
             System.out.println("You can't transfer money to the same account!\n");
         }
