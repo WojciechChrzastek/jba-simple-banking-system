@@ -253,9 +253,13 @@ public class Main {
         if (isTransferRecipientCardNumberValid(conn, transferRecipientCardNumber, loggedCardNumber)) {
             System.out.println("Enter how much money you want to transfer: ");
             transferAmount = scanner.nextInt();
-            dbHandler.updateBalance(conn, transferRecipientCardNumber, transferAmount);
-            dbHandler.updateBalance(conn, loggedCardNumber, -transferAmount);
-            System.out.println("Success!\n");
+            if (dbHandler.checkBalance(conn, loggedCardNumber) >= transferAmount) {
+                dbHandler.updateBalance(conn, transferRecipientCardNumber, transferAmount);
+                dbHandler.updateBalance(conn, loggedCardNumber, -transferAmount);
+                System.out.println("Success!\n");
+            } else {
+                System.out.println("Not enough money!\n");
+            }
         }
         determineLoggedUserAction(conn, loggedCardNumber, takeInput("user"));
     }
