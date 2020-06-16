@@ -227,20 +227,11 @@ public class Main {
         return sum % 10 == 0;
     }
 
-    private static void doTransfer(Connection conn, String loggedCardNumber) {
-        String transferRecipientCardNumber;
-        int transferAmount;
-        System.out.println("\nTransfer");
-        System.out.println("Enter card number: ");
-        transferRecipientCardNumber = scanner.next();
+    private static boolean isTransferRecipientCardNumberValid(Connection conn, String transferRecipientCardNumber, String loggedCardNumber) {
         if (!transferRecipientCardNumber.equals(loggedCardNumber)) {
             if (isLuhnValid(transferRecipientCardNumber)) {
                 if (dbHandler.hasCardNumber(conn, transferRecipientCardNumber)) {
-                    System.out.println("Enter how much money you want to transfer: ");
-                    transferAmount = scanner.nextInt();
-                    dbHandler.updateBalance(conn, transferRecipientCardNumber, transferAmount);
-                    dbHandler.updateBalance(conn, loggedCardNumber, -transferAmount);
-                    System.out.println("Success!\n");
+                    return true;
                 } else {
                     System.out.println("Such a card does not exist.\n");
                 }
@@ -249,6 +240,22 @@ public class Main {
             }
         } else {
             System.out.println("You can't transfer money to the same account!\n");
+        }
+        return false;
+    }
+
+    private static void doTransfer(Connection conn, String loggedCardNumber) {
+        String transferRecipientCardNumber;
+        int transferAmount;
+        System.out.println("\nTransfer");
+        System.out.println("Enter card number: ");
+        transferRecipientCardNumber = scanner.next();
+        if (isTransferRecipientCardNumberValid(conn, transferRecipientCardNumber, loggedCardNumber)) {
+            System.out.println("Enter how much money you want to transfer: ");
+            transferAmount = scanner.nextInt();
+            dbHandler.updateBalance(conn, transferRecipientCardNumber, transferAmount);
+            dbHandler.updateBalance(conn, loggedCardNumber, -transferAmount);
+            System.out.println("Success!\n");
         }
         determineLoggedUserAction(conn, loggedCardNumber, takeInput("user"));
     }
