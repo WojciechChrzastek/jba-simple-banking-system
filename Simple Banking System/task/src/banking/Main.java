@@ -275,7 +275,7 @@ public class Main {
     private static void closeAccount(Connection conn, String loggedCardNumber) {
         dbHandler.deleteCard(conn, loggedCardNumber);
         System.out.println("\nThe account has been closed!\n");
-        determineLoggedUserAction(conn, loggedCardNumber, takeInput("user"));
+        determineMainMenuAction(conn, takeInput("main"));
     }
 
     private static void checkBalance(Connection conn, String loggedCardNumber) {
