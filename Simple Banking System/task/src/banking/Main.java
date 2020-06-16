@@ -2,13 +2,10 @@ package banking;
 
 import java.sql.Connection;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.Set;
 
 public class Main {
-    private static final Set<Account> accountsSet = new HashSet<>();
     private static final Scanner scanner = new Scanner(System.in);
     private static final DbHandler dbHandler = new DbHandler();
 
@@ -154,7 +151,6 @@ public class Main {
         int balance = 0;
 
         Account account = new Account(cardNumber, pin, balance);
-        accountsSet.add(account);
 
         System.out.println("\nYour card has been created\n" +
                 "Your card number:\n" +
@@ -189,7 +185,7 @@ public class Main {
                 break;
             }
             case "2": {
-
+                addIncome(conn, loggedCardNumber);
                 break;
             }
             case "3": {
@@ -209,6 +205,14 @@ public class Main {
                 break;
             }
         }
+    }
+
+    private static void addIncome(Connection conn, String loggedCardNumber) {
+        System.out.println("\nEnter income: ");
+        int income = scanner.nextInt();
+        dbHandler.addIncome(conn, loggedCardNumber, income);
+        System.out.println("Income was added!\n");
+        determineLoggedUserAction(conn, loggedCardNumber, takeInput("user"));
     }
 
     private static void closeAccount(Connection conn, String loggedCardNumber) {
