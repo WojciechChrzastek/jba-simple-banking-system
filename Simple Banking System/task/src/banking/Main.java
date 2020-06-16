@@ -71,7 +71,10 @@ public class Main {
         } else if (menu.equals("user")) {
             System.out.println(
                     "1. Balance\n" +
-                            "2. Log out\n" +
+                            "2. Add income\n" +
+                            "3. Do transfer\n" +
+                            "4. Close account\n" +
+                            "5. Log out\n" +
                             "0. Exit");
         }
     }
@@ -197,6 +200,18 @@ public class Main {
                 break;
             }
             case "2": {
+
+                break;
+            }
+            case "3": {
+
+                break;
+            }
+            case "4": {
+
+                break;
+            }
+            case "5": {
                 logOut();
                 break;
             }
