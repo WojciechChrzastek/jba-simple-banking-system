@@ -14,8 +14,8 @@ public class Main {
     }
 
     private static void runApplication(String[] args) {
-//        String dbName = importDbFileName(args);
-        String dbName = "test.db";
+        String dbName = importDbFileName(args);
+//        String dbName = "test.db";
         setDb(dbName);
         Connection conn = dbHandler.connect(dbName);
         determineMainMenuAction(conn, takeInput("main"));
@@ -26,19 +26,19 @@ public class Main {
         dbHandler.createNewTable(dbName);
     }
 
-//    private static String importDbFileName(String[] args) {
-//        String fileName = "";
-//        try {
-//            if (args[0].equals("-fileName") && args.length >= 2) {
-//                fileName = args[1];
-//            } else {
-//                System.out.println("No database name passed by command line argument.");
-//            }
-//        } catch (Exception e) {
-//            System.out.println("No database name passed by command line argument.");
-//        }
-//        return fileName;
-//    }
+    private static String importDbFileName(String[] args) {
+        String fileName = "";
+        try {
+            if (args[0].equals("-fileName") && args.length >= 2) {
+                fileName = args[1];
+            } else {
+                System.out.println("No database name passed by command line argument.");
+            }
+        } catch (Exception e) {
+            System.out.println("No database name passed by command line argument.");
+        }
+        return fileName;
+    }
 
     private static String takeInput(String menu) {
         final String[] possibleActions = {"1", "2", "3", "4", "5", "0"};
