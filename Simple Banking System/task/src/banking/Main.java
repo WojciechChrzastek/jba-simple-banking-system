@@ -189,7 +189,7 @@ public class Main {
                 break;
             }
             case "3": {
-
+                doTransfer(conn, loggedCardNumber);
                 break;
             }
             case "4": {
@@ -207,10 +207,28 @@ public class Main {
         }
     }
 
+    private static void doTransfer(Connection conn, String loggedCardNumber) {
+        String transferRecipentCardNumber;
+        int transferAmmount;
+        System.out.println("\nTransfer");
+        System.out.println("Enter card number: ");
+        transferRecipentCardNumber = scanner.next();
+        if (!transferRecipentCardNumber.equals(loggedCardNumber)) {
+            System.out.println("Enter how much money you want to transfer: ");
+            transferAmmount = scanner.nextInt();
+            dbHandler.updateBalance(conn, transferRecipentCardNumber, transferAmmount);
+            dbHandler.updateBalance(conn, loggedCardNumber, -transferAmmount);
+            System.out.println("Success!\n");
+        } else {
+            System.out.println("You can't transfer money to the same account!\n");
+        }
+        determineLoggedUserAction(conn, loggedCardNumber, takeInput("user"));
+    }
+
     private static void addIncome(Connection conn, String loggedCardNumber) {
         System.out.println("\nEnter income: ");
         int income = scanner.nextInt();
-        dbHandler.addIncome(conn, loggedCardNumber, income);
+        dbHandler.updateBalance(conn, loggedCardNumber, income);
         System.out.println("Income was added!\n");
         determineLoggedUserAction(conn, loggedCardNumber, takeInput("user"));
     }

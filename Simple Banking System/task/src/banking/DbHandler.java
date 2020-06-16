@@ -121,12 +121,12 @@ public class DbHandler {
     }
   }
 
-  public void addIncome(Connection conn, String loggedCardNumber, int income) {
+  public void updateBalance(Connection conn, String cardNumber, int income) {
     String sql = "UPDATE card SET balance = (balance + ?) WHERE number = ?";
 
     try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setInt(1, income);
-      pstmt.setString(2, loggedCardNumber);
+      pstmt.setString(2, cardNumber);
       pstmt.executeUpdate();
     } catch (SQLException e) {
       System.out.println(e.getMessage());
