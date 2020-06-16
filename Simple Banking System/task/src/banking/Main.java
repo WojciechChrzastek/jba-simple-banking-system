@@ -11,40 +11,40 @@ public class Main {
     private static final Set<Account> accountsSet = new HashSet<>();
     private static final Scanner scanner = new Scanner(System.in);
     private static final DbHandler dbHandler = new DbHandler();
-    private static String dbName;
-
 
     public static void main(String[] args) {
         runApplication(args);
     }
 
     private static void runApplication(String[] args) {
-        setDb(args);
-        determineMainMenuAction(takeInput("main"));
+//        String dbName = importDbFileName(args);
+        String dbName = "test.db";
+        setDb(dbName);
+        Connection conn = dbHandler.connect(dbName);
+        determineMainMenuAction(conn, takeInput("main"));
     }
 
-    private static void setDb(String[] args) {
-        dbName = importDbFileName(args);
+    private static void setDb(String dbName) {
         dbHandler.createNewDatabase(dbName);
         dbHandler.createNewTable(dbName);
     }
 
-    private static String importDbFileName(String[] args) {
-        String fileName = "";
-        try {
-            if (args[0].equals("-fileName") && args.length >= 2) {
-                fileName = args[1];
-            } else {
-                System.out.println("No database name passed by command line argument.");
-            }
-        } catch (Exception e) {
-            System.out.println("No database name passed by command line argument.");
-        }
-        return fileName;
-    }
+//    private static String importDbFileName(String[] args) {
+//        String fileName = "";
+//        try {
+//            if (args[0].equals("-fileName") && args.length >= 2) {
+//                fileName = args[1];
+//            } else {
+//                System.out.println("No database name passed by command line argument.");
+//            }
+//        } catch (Exception e) {
+//            System.out.println("No database name passed by command line argument.");
+//        }
+//        return fileName;
+//    }
 
     private static String takeInput(String menu) {
-        final String[] possibleActions = {"1", "2", "0"};
+        final String[] possibleActions = {"1", "2", "3", "4", "5", "0"};
         String action;
         boolean hasAction = false;
 
@@ -55,7 +55,7 @@ public class Main {
                 hasAction = true;
 
             } else {
-                System.out.println("Provide valid input! (1 or 2 or 3)");
+                System.out.println("Provide valid input! (1 or 2 or 3 or 4 or 5 or 0)");
             }
         }
         while (!(hasAction));
@@ -79,14 +79,14 @@ public class Main {
         }
     }
 
-    private static void determineMainMenuAction(String action) {
+    private static void determineMainMenuAction(Connection conn, String action) {
         switch (action) {
             case "1": {
-                createAnAccount();
+                createAnAccount(conn);
                 break;
             }
             case "2": {
-                logIntoAccount();
+                logIntoAccount(conn);
                 break;
             }
             case "0": {
@@ -96,7 +96,7 @@ public class Main {
         }
     }
 
-    private static long createCardNumber() {
+    private static String createCardNumber() {
         Random random = new Random();
         StringBuilder sb = new StringBuilder();
         int[] cardNumberWithoutChecksum = {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -134,7 +134,7 @@ public class Main {
             checksum++;
         }
 
-        return Long.parseLong(cardNumberWithoutChecksumString.concat(String.valueOf(checksum)));
+        return cardNumberWithoutChecksumString.concat(String.valueOf(checksum));
     }
 
     public static String createPin() {
@@ -148,10 +148,8 @@ public class Main {
         return pin;
     }
 
-    private static void createAnAccount() {
-        Connection conn = dbHandler.connect(dbName);
-
-        long cardNumber = createCardNumber();
+    private static void createAnAccount(Connection conn) {
+        String cardNumber = createCardNumber();
         String pin = createPin();
         int balance = 0;
 
@@ -164,39 +162,25 @@ public class Main {
                 "Your card PIN:\n" +
                 pin + "\n");
 
-        dbHandler.insert(conn, String.valueOf(account.getCardNumber()), account.getPin());
-        determineMainMenuAction(takeInput("main"));
+        dbHandler.insertNewCard(conn, String.valueOf(account.getCardNumber()), account.getPin());
+        determineMainMenuAction(conn, takeInput("main"));
         dbHandler.closeConnection(conn);
     }
 
-    private static void logIntoAccount() {
+    private static void logIntoAccount(Connection conn) {
         System.out.println("\nEnter your card number: ");
-        long cardNumber = scanner.nextLong();
+        String cardNumber = scanner.next();
         System.out.println("Enter your PIN: ");
         String pin = scanner.next();
-        Account loggedAccount = findAccount(cardNumber, pin);
+        String loggedCardNumber = dbHandler.findCard(conn, cardNumber, pin);
         System.out.println("\nYou have successfully logged in!\n");
-        determineLoggedUserAction(loggedAccount, takeInput("user"));
+        determineLoggedUserAction(conn, loggedCardNumber, takeInput("user"));
     }
 
-    private static Account findAccount(long cardNumber, String pin) {
-        for (Account account : Main.accountsSet) {
-            long cn = account.getCardNumber();
-            String p = account.getPin();
-            if (cn == cardNumber && p.equals(pin)) {
-                return account;
-            } else {
-                System.out.println("\nWrong card number or PIN!\n");
-                determineMainMenuAction(takeInput("main"));
-            }
-        }
-        return null;
-    }
-
-    private static void determineLoggedUserAction(Account account, String action) {
+    private static void determineLoggedUserAction(Connection conn, String loggedCardNumber, String action) {
         switch (action) {
             case "1": {
-                checkBalance(account);
+                checkBalance(conn, loggedCardNumber);
                 break;
             }
             case "2": {
@@ -208,11 +192,11 @@ public class Main {
                 break;
             }
             case "4": {
-
+                closeAccount(conn, loggedCardNumber);
                 break;
             }
             case "5": {
-                logOut();
+                logOut(conn);
                 break;
             }
             case "0": {
@@ -222,14 +206,21 @@ public class Main {
         }
     }
 
-    private static void checkBalance(Account account) {
-        System.out.println("\nBalance: " + account.getBalance() + "\n");
-        determineLoggedUserAction(account, takeInput("user"));
+    private static void closeAccount(Connection conn, String loggedCardNumber) {
+        dbHandler.deleteCard(conn, loggedCardNumber);
+        System.out.println("\nThe account has been closed!\n");
+        determineLoggedUserAction(conn, loggedCardNumber, takeInput("user"));
     }
 
-    private static void logOut() {
+    private static void checkBalance(Connection conn, String loggedCardNumber) {
+        int balance = dbHandler.checkBalance(conn, loggedCardNumber);
+        System.out.println("\nBalance: " + balance + "\n");
+        determineLoggedUserAction(conn, loggedCardNumber, takeInput("user"));
+    }
+
+    private static void logOut(Connection conn) {
         System.out.println("\nYou have successfully logged out!\n");
-        determineMainMenuAction(takeInput("main"));
+        determineMainMenuAction(conn, takeInput("main"));
     }
 
     private static void exit() {

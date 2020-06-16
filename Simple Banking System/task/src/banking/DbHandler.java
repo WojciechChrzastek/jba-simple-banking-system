@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -52,12 +53,65 @@ public class DbHandler {
     }
   }
 
-  public void insert(Connection conn, String cardNumber, String pin) {
+  public void insertNewCard(Connection conn, String cardNumber, String pin) {
     String sql = "INSERT INTO card(number, pin) VALUES(?, ?);";
 
     try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setString(1, cardNumber);
       pstmt.setString(2, pin);
+      pstmt.executeUpdate();
+    } catch (SQLException e) {
+      System.out.println(e.getMessage());
+    }
+  }
+
+  public int checkBalance(Connection conn, String loggedCardNumber) {
+    int balance = 0;
+    String sql = "SELECT balance FROM card WHERE number = ?;";
+
+    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+      pstmt.setString(1, loggedCardNumber);
+      ResultSet rs = pstmt.executeQuery();
+
+      while (rs.next()) {
+        balance = rs.getInt("balance");
+      }
+    } catch (SQLException e) {
+      System.out.println(e.getMessage());
+    }
+    return balance;
+  }
+
+  public String findCard(Connection conn, String cardNumber, String pin) {
+    String sql = "SELECT * FROM card WHERE number = ? AND pin = ?;";
+    int rowCount = 0;
+
+    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+      pstmt.setString(1, cardNumber);
+      pstmt.setString(2, pin);
+      ResultSet rs = pstmt.executeQuery();
+
+      while (rs.next()) {
+        rowCount++;
+      }
+    } catch (SQLException e) {
+      System.out.println(e.getMessage());
+    }
+
+    if (rowCount == 1) {
+      return cardNumber;
+    } else {
+      System.out.println("\nWrong card number or PIN!\n");
+
+    }
+    return null;
+  }
+
+  public void deleteCard(Connection conn, String cardNumber) {
+    String sql = "DELETE FROM card WHERE number = ?;";
+
+    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+      pstmt.setString(1, cardNumber);
       pstmt.executeUpdate();
     } catch (SQLException e) {
       System.out.println(e.getMessage());
