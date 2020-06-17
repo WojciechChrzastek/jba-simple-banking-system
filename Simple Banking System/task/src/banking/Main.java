@@ -148,9 +148,6 @@ public class Main {
     private static void createAnAccount(Connection conn) {
         String cardNumber = createCardNumber();
         String pin = createPin();
-        int balance = 0;
-
-        Account account = new Account(cardNumber, pin, balance);
 
         System.out.println("\nYour card has been created\n" +
                 "Your card number:\n" +
@@ -158,7 +155,7 @@ public class Main {
                 "Your card PIN:\n" +
                 pin + "\n");
 
-        dbHandler.insertNewCard(conn, String.valueOf(account.getCardNumber()), account.getPin());
+        dbHandler.insertNewCard(conn, cardNumber, pin);
         determineMainMenuAction(conn, takeInput("main"));
         dbHandler.closeConnection(conn);
     }
